@@ -1,0 +1,35 @@
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$_PROJECT_ID/gcf-artifacts-app-java-hello-world/$SHORT_SHA', '.']
+    id: 'build-image'
+
+  # Step 2: Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$_PROJECT_ID/gcf-artifacts-app-java-hello-world/$SHORT_SHA']
+    waitFor: ['build-image']
+    id: 'push-image'
+
+  # Step 3: Deploy the latest image to the GKE cluster
+  - name: 'gcr.io/google-cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        kubectl set image deployment/deployment-app-java-hello-world hello-world-java-1=$IMAGE_TAG -n app-java-hello-world
+    env:
+      - 'IMAGE_TAG=us-central1-docker.pkg.dev/$_PROJECT_ID/gcf-artifacts-app-java-hello-world/$SHORT_SHA'
+    waitFor: ['push-image']
+    id: 'deploy-gke'
+    volumes:
+      - name: 'kubeconfig'
+        secret:
+          secretName: 'kubeconfig'
+# images:
+#   - '${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}'
+options:
+  substitutionOption: 'ALLOW_LOOSE'
+  logging: CLOUD_LOGGING_ONLY
+
+secrets:
+  - name: 'kubeconfig'

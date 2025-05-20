@@ -1,7 +1,10 @@
+cloudbuild.old.yaml
 mvnw
 mvnw.cmd
 .mvn
 .mvn/wrapper
+Docker/
+k8s/
 
 HELP.md
 target/
