@@ -12,6 +12,7 @@ jobs:
     env:
       SERVICE_NAME: "java-hello-world-app"
       CONTAINER_IMAGE: "joads0n/hello-world-java"
+      IMAGE_NAME: "hello-world-java"
 
     steps:
       - name: Checkout repository
@@ -49,7 +50,7 @@ jobs:
           git clone https://${{ secrets.PASSWORD_GIT_CI }}@github.com/Joads0n/argocd.git
           cd argocd/apps/services/${{ env.SERVICE_NAME }}/
           cp deployment.yaml deployment.yaml.old
-          sed -i "s/image:.*$/image: ${{ env.CONTAINER_IMAGE }}:${{ steps.random_tag.outputs.TAG }}/" deployment.yaml
+          sed -i "s/image:.*$/image: ${{ secrets.DOCKER_USERNAME }}\/${{ env.IMAGE_NAME }}:${{ steps.random_tag.outputs.TAG }}/" deployment.yaml
           git add deployment.yaml.old
           git add deployment.yaml
           git commit -m "[${{ env.SERVICE_NAME }}] - Update Docker image tag: ${{ steps.random_tag.outputs.TAG }}"
