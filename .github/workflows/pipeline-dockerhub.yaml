@@ -1,7 +1,9 @@
 name: UP TO DOCKER HUB
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - 'main'  
 
 jobs:
 
